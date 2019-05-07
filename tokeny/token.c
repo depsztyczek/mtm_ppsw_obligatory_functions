@@ -14,23 +14,20 @@ typedef enum TokenType
 typedef enum KeywordCode 
 { LD, ST, RST} KeywordCode;
 
-typedef union TokenValue
-{
+typedef union TokenValue{
 enum KeywordCode eKeyword;
 unsigned int uiNumber;
 char *pcString; 
 } TokenValue;
 
-typedef struct Token
-{
+typedef struct Token{
 enum TokenType eType; 
 union TokenValue uValue; 
 } Token;
 
 struct Token asToken[MAX_TOKEN_NR];
 
-typedef struct Keyword
-{
+typedef struct Keyword{
 enum KeywordCode eCode;
 char cString[MAX_KEYWORD_STRING_LTH + 1];
 } Keyword;
@@ -101,21 +98,19 @@ unsigned char ucFindTokensInString(char *pcString)
 	for(ucTokenPointer=0;;ucTokenPointer++)
 	{
 		cCurrentChar = pcString[ucTokenPointer];
-		switch(eState)
-		{
+		switch(eState){
 			case DELIMITER:
-				if(cCurrentChar == '\0') 
+				if(cCurrentChar == NULL) 
 					return ucDelimiterCounter;
 				else if(cCurrentChar == ' ') {}
-				else 
-				{
+				else {
 					eState = TOKEN;
 					asToken[ucDelimiterCounter].uValue.pcString = pcString+ucTokenPointer;
 					ucDelimiterCounter++;
 				}
 				break;
 			case TOKEN:
-				if(cCurrentChar == '\0') 
+				if(cCurrentChar == NULL) 
 					return ucDelimiterCounter;
 				else if(ucDelimiterCounter == MAX_TOKEN_NR) 
 					return ucDelimiterCounter;
@@ -162,4 +157,28 @@ void DecodeMsg(char *pcString)
 	ucFindTokensInString(pcString);
 	ReplaceCharactersInString(pcString,' ','\0');
 	DecodeTokens();
+}
+
+enum Result eTestOf_ucFindTokensInString()
+{
+	char test1[] = "            ";
+	char test2[] = "Token1 Token2";
+	char test3[] = "Token1     Token2";
+	unsigned char wynik;
+	
+	wynik = ucFindTokensInString(test1);
+	if (wynik != 0) 
+		return ERROR;
+	if (asToken[0].uValue.pcString != '\0') 
+		return ERROR;
+	wynik = ucFindTokensInString(test2);
+	if (wynik != 2) 
+		return ERROR;
+	wynik = ucFindTokensInString(test3);
+	if (wynik != 2) 
+		return ERROR;
+	return OK;
+}
+int main(){
+	eTestOf_ucFindTokensInString();
 }
